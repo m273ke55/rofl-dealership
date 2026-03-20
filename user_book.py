@@ -69,10 +69,18 @@ class UserBook:
         if user_id is None:
             self.io.output_error("ID пользователя не указан.")
             return
+
         user = self.find_user_by_id(user_id)
         if user is None:
             self.io.output_error("Пользователь с таким ID не найден.")
             return
+
+        password = self.io.input_nonempty("Введите пароль").strip()
+        if password != user.password:
+            self.io.output_error("Неверный пароль.")
+            return
+
+        self.io.output_message("Вход выполнен успешно.")
         self._user_menu(user)
 
     def save_to_file(self) -> None:
@@ -122,30 +130,45 @@ class UserBook:
             action()
 
     def _create_request_for_user(self, user: User) -> None:
+        type_map = {
+            1: ("consultation", "Консультация"),
+            2: ("service", "Сервис"),
+        }
+
         self.io.output_message("Выберите тип заявки:")
-        self.io.output_message("1. consultation")
-        self.io.output_message("2. service")
-        self.io.output_message("0. отмена")
+        for key, (_, label) in type_map.items():
+            self.io.output_message(f"{key}. {label}")
+        self.io.output_message("0. Отмена")
+
         choice = self.io.input_int("Ваш выбор")
         if choice == 0:
             self.io.output_message("Создание заявки отменено.")
             return
-        if choice == 1:
-            request_type = "consultation"
-            date = None
-        elif choice == 2:
-            request_type = "service"
-            date = self.io.input_date("Введите дату обслуживания")
-        else:
+
+        if choice not in type_map:
             self.io.output_error("Некорректный выбор типа заявки.")
             return
 
+        request_type, _ = type_map[choice]
+
+        if request_type == "consultation":
+            date = None
+        else:
+            date = self.io.input_date("Введите дату обслуживания")
+
         new_id = self.max_request_id + 1
         try:
-            request = Request(id=new_id, type=request_type, date=date, status="active", io=self.io)
+            request = Request(
+                id=new_id,
+                type=request_type,
+                date=date,
+                status="active",
+                io=self.io,
+            )
         except ValueError as error:
             self.io.output_error(f"Не удалось создать заявку: {error}")
             return
+
         user.add_request(request)
         self.max_request_id = new_id
         self.io.output_message(f"Заявка успешно создана с ID {new_id}.")
@@ -154,20 +177,25 @@ class UserBook:
         if not user.requests:
             self.io.output_message("У пользователя нет заявок для отмены.")
             return
+
         request_id = self.io.input_int("Введите ID заявки для отмены")
         if request_id is None:
             self.io.output_error("ID заявки не указан.")
             return
+
         request = user.find_request_by_id(request_id)
         if request is None:
             self.io.output_error("Заявка с таким ID не найдена.")
             return
+
         if request.status == "cancelled":
             self.io.output_message("Заявка уже отменена.")
             return
+
         confirmation = self.io.input_field("Подтвердите отмену заявки (y/n)").lower()
         if confirmation != "y":
             self.io.output_message("Отмена заявки прервана.")
             return
+
         user.cancel_request(request_id)
         self.io.output_message("Заявка отменена.")

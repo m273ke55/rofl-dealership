@@ -35,7 +35,7 @@ class User(BaseEntity):
         self.middle_name = self._input_required_text("Отчество")
         self.phone = self._input_required_text("Телефон")
         self.email = self._input_email("Email")
-        self.password = self._input_required_text("Пароль")
+        self.password = self._input_password_with_confirmation()
 
     def write(self) -> None:
         if self.io is None:
@@ -47,8 +47,18 @@ class User(BaseEntity):
         self.io.output_field("Отчество", self.middle_name)
         self.io.output_field("Телефон", self.phone)
         self.io.output_field("Email", self.email)
-        self.io.output_field("Пароль", self.password)
+        self.io.output_field("Пароль", self.get_masked_password())
         self.io.output_field("Количество заявок", len(self.requests))
+
+    def show_password(self) -> None:
+        if self.io is None:
+            return
+        self.io.output_field("Пароль", self.password)
+
+    def get_masked_password(self) -> str:
+        if not self.password:
+            return ""
+        return "*" * len(self.password)
 
     def edit(self) -> None:
         if self.io is None:
@@ -60,15 +70,20 @@ class User(BaseEntity):
             ("Отчество", "middle_name", self._validate_nonempty),
             ("Телефон", "phone", self._validate_nonempty),
             ("Email", "email", self._validate_email),
-            ("Пароль", "password", self._validate_nonempty),
+            ("Пароль", "password", None),
         ]
 
         while True:
             self.io.output_separator()
             self.io.output_message("Редактирование пользователя:")
             for index, (title, attr_name, _) in enumerate(fields, start=1):
-                self.io.output_message(f"{index}. {title} ({getattr(self, attr_name)})")
+                if attr_name == "password":
+                    shown_value = self.get_masked_password()
+                else:
+                    shown_value = getattr(self, attr_name)
+                self.io.output_message(f"{index}. {title} ({shown_value})")
             self.io.output_message("0. Завершить редактирование")
+
             choice = self.io.input_int("Выберите номер поля", allow_empty=False)
 
             if choice == 0:
@@ -79,6 +94,17 @@ class User(BaseEntity):
                 continue
 
             title, attr_name, validator = fields[choice - 1]
+
+            if attr_name == "password":
+                change = self.io.input_field("Изменить пароль? (y/n)").lower()
+                if change != "y":
+                    self.io.output_message("Смена пароля отменена.")
+                    continue
+                new_password = self._input_password_with_confirmation()
+                self.password = new_password
+                self.io.output_message("Пароль успешно обновлен.")
+                continue
+
             while True:
                 new_value = self.io.input_field(f"Новое значение для '{title}'")
                 if new_value == "":
@@ -136,6 +162,17 @@ class User(BaseEntity):
             if validation_error is None:
                 return value
             self.io.output_error(validation_error)
+
+    def _input_password_with_confirmation(self) -> str:
+        while True:
+            password = self.io.input_nonempty("Пароль").strip()
+            confirm_password = self.io.input_nonempty("Подтверждение пароля").strip()
+
+            if password != confirm_password:
+                self.io.output_error("Пароли не совпадают.")
+                continue
+
+            return password
 
     @staticmethod
     def _validate_nonempty(value: str) -> str | None:

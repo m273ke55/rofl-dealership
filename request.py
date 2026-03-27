@@ -1,58 +1,68 @@
-from __future__ import annotations
-
-from dataclasses import dataclass, field
 from datetime import datetime
-from typing import ClassVar
 
 from base_entity import BaseEntity
 
 
-@dataclass
 class Request(BaseEntity):
-    ALLOWED_TYPES: ClassVar[set[str]] = {"consultation", "service"}
-    ALLOWED_STATUSES: ClassVar[set[str]] = {"active", "cancelled"}
+    def __init__(self, request_id, request_type, date=None, status="active", io=None):
+        super().__init__(io)
 
-    id: int
-    type: str
-    date: str | None
-    status: str = "active"
-    io: object | None = field(default=None, repr=False, compare=False)
-
-    def __post_init__(self) -> None:
-        BaseEntity.__init__(self, self.io)
-        if self.type not in self.ALLOWED_TYPES:
+        if request_type not in ("consultation", "service"):
             raise ValueError("Тип заявки должен быть 'consultation' или 'service'.")
-        if self.status not in self.ALLOWED_STATUSES:
+        if status not in ("active", "cancelled"):
             raise ValueError("Статус заявки должен быть 'active' или 'cancelled'.")
-        if self.type == "consultation":
-            if self.date is not None:
+
+        if request_type == "consultation":
+            if date is not None:
                 raise ValueError("Для заявки consultation дата должна быть пустой.")
         else:
-            if self.date is None:
+            if date is None:
                 raise ValueError("Для заявки service дата обязательна.")
-            self._validate_date(self.date)
+            self._validate_date(date)
+
+        self.id = request_id
+        self.type = request_type
+        self.date = date
+        self.status = status
 
     @staticmethod
-    def _validate_date(value: str) -> None:
+    def _validate_date(value):
         datetime.strptime(value, "%d.%m.%Y")
 
-    def cancel(self) -> None:
+    def cancel(self):
         self.status = "cancelled"
 
-    def __str__(self) -> str:
-        request_type = "Консультация" if self.type == "consultation" else "Сервис"
-        date_text = self.date if self.date is not None else "не требуется"
-        status_text = "активна" if self.status == "active" else "отменена"
-        return (
-            f"Заявка #{self.id}: тип={request_type}, дата={date_text}, статус={status_text}"
-        )
+    def __str__(self):
+        if self.type == "consultation":
+            request_type = "Консультация"
+        else:
+            request_type = "Сервис"
 
-    def write(self) -> None:
+        if self.date is None:
+            date_text = "не требуется"
+        else:
+            date_text = self.date
+
+        if self.status == "active":
+            status_text = "активна"
+        else:
+            status_text = "отменена"
+
+        return f"Заявка #{self.id}: тип={request_type}, дата={date_text}, статус={status_text}"
+
+    def write(self):
         if self.io is None:
             return
 
-        request_type = "Консультация" if self.type == "consultation" else "Сервис"
-        status_text = "активна" if self.status == "active" else "отменена"
+        if self.type == "consultation":
+            request_type = "Консультация"
+        else:
+            request_type = "Сервис"
+
+        if self.status == "active":
+            status_text = "активна"
+        else:
+            status_text = "отменена"
 
         self.io.output_separator()
         self.io.output_field("ID заявки", self.id)

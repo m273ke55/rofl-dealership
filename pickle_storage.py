@@ -1,56 +1,54 @@
-from __future__ import annotations
-
 import pickle
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from user_book import UserBook
 
 
 class PickleStorage:
-    def __init__(self, book: "UserBook") -> None:
-        self.book = book
+    def __init__(self, user_system):
+        self.user_system = user_system
 
-    def save(self, filename: str = "data.dat") -> bool:
+    def save(self, filename="data.dat"):
         try:
             data = {
-                "users": self.book.users,
-                "max_user_id": self.book.max_user_id,
-                "max_request_id": self.book.max_request_id,
+                "users": self.user_system.users,
+                "max_user_id": self.user_system.max_user_id,
+                "max_request_id": self.user_system.max_request_id,
             }
             with open(filename, "wb") as file:
                 pickle.dump(data, file)
-            self.book.io.output_message(f"Данные успешно сохранены в файл '{filename}'.")
+
+            self.user_system.io.output_message(f"Данные успешно сохранены в файл '{filename}'.")
             return True
         except FileNotFoundError:
-            self.book.io.output_error(f"Файл '{filename}' не найден.")
+            self.user_system.io.output_error(f"Файл '{filename}' не найден.")
         except OSError as error:
-            self.book.io.output_error(f"Ошибка ввода-вывода при сохранении: {error}")
+            self.user_system.io.output_error(f"Ошибка ввода-вывода при сохранении: {error}")
         except Exception as error:
-            self.book.io.output_error(f"Непредвиденная ошибка при сохранении: {error}")
+            self.user_system.io.output_error(f"Непредвиденная ошибка при сохранении: {error}")
+
         return False
 
-    def load(self, filename: str = "data.dat") -> bool:
+    def load(self, filename="data.dat"):
         try:
             with open(filename, "rb") as file:
                 data = pickle.load(file)
-                if not isinstance(data, dict):
-                    raise ValueError("Некорректная структура данных в файле.")
 
-            self.book.users = data.get("users", {})
-            self.book.max_user_id = data.get("max_user_id", 0)
-            self.book.max_request_id = data.get("max_request_id", 0)
-            self.book.restore_io_links()
-            self.book.io.output_message(f"Данные успешно загружены из файла '{filename}'.")
+            if not isinstance(data, dict):
+                raise ValueError("Некорректная структура данных в файле.")
+
+            self.user_system.users = data.get("users", {})
+            self.user_system.max_user_id = data.get("max_user_id", 0)
+            self.user_system.max_request_id = data.get("max_request_id", 0)
+            self.user_system.restore_io_links()
+            self.user_system.io.output_message(f"Данные успешно загружены из файла '{filename}'.")
             return True
         except FileNotFoundError:
-            self.book.io.output_error(f"Файл '{filename}' не найден.")
+            self.user_system.io.output_error(f"Файл '{filename}' не найден.")
         except EOFError:
-            self.book.io.output_error("Файл пуст или данные в нем неполные.")
+            self.user_system.io.output_error("Файл пуст или данные в нем неполные.")
         except pickle.UnpicklingError:
-            self.book.io.output_error("Не удалось распознать данные файла pickle.")
+            self.user_system.io.output_error("Не удалось распознать данные файла pickle.")
         except OSError as error:
-            self.book.io.output_error(f"Ошибка ввода-вывода при загрузке: {error}")
+            self.user_system.io.output_error(f"Ошибка ввода-вывода при загрузке: {error}")
         except Exception as error:
-            self.book.io.output_error(f"Непредвиденная ошибка при загрузке: {error}")
+            self.user_system.io.output_error(f"Непредвиденная ошибка при загрузке: {error}")
+
         return False

@@ -1,35 +1,42 @@
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-
 from base_entity import BaseEntity
-from request import Request
 
 
-@dataclass
 class User(BaseEntity):
-    id: int
-    first_name: str = ""
-    last_name: str = ""
-    middle_name: str = ""
-    phone: str = ""
-    email: str = ""
-    password: str = ""
-    requests: list[Request] = field(default_factory=list)
-    io: object | None = field(default=None, repr=False, compare=False)
+    def __init__(
+        self,
+        user_id,
+        first_name="",
+        last_name="",
+        middle_name="",
+        phone="",
+        email="",
+        password="",
+        requests=None,
+        io=None,
+    ):
+        super().__init__(io)
+        self.id = user_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.middle_name = middle_name
+        self.phone = phone
+        self.email = email
+        self.password = password
+        if requests is None:
+            self.requests = []
+        else:
+            self.requests = requests
 
-    def __post_init__(self) -> None:
-        BaseEntity.__init__(self, self.io)
-
-    def __str__(self) -> str:
+    def __str__(self):
         return (
             f"Пользователь #{self.id}: {self.last_name} {self.first_name} {self.middle_name}, "
             f"тел.: {self.phone}, email: {self.email}, заявок: {len(self.requests)}"
         )
 
-    def read(self) -> None:
+    def read(self):
         if self.io is None:
             raise RuntimeError("Стратегия ввода-вывода не установлена.")
+
         self.first_name = self._input_required_text("Имя")
         self.last_name = self._input_required_text("Фамилия")
         self.middle_name = self._input_required_text("Отчество")
@@ -37,9 +44,10 @@ class User(BaseEntity):
         self.email = self._input_email("Email")
         self.password = self._input_password_with_confirmation()
 
-    def write(self) -> None:
+    def write(self):
         if self.io is None:
             return
+
         self.io.output_separator()
         self.io.output_field("ID пользователя", self.id)
         self.io.output_field("Фамилия", self.last_name)
@@ -50,96 +58,113 @@ class User(BaseEntity):
         self.io.output_field("Пароль", self.get_masked_password())
         self.io.output_field("Количество заявок", len(self.requests))
 
-    def show_password(self) -> None:
+    def show_password(self):
         if self.io is None:
             return
         self.io.output_field("Пароль", self.password)
 
-    def get_masked_password(self) -> str:
-        if not self.password:
-            return ""
+    def get_masked_password(self):
         return "*" * len(self.password)
 
-    def edit(self) -> None:
+    def edit(self):
         if self.io is None:
             raise RuntimeError("Стратегия ввода-вывода не установлена.")
-
-        fields = [
-            ("Имя", "first_name", self._validate_nonempty),
-            ("Фамилия", "last_name", self._validate_nonempty),
-            ("Отчество", "middle_name", self._validate_nonempty),
-            ("Телефон", "phone", self._validate_nonempty),
-            ("Email", "email", self._validate_email),
-            ("Пароль", "password", None),
-        ]
 
         while True:
             self.io.output_separator()
             self.io.output_message("Редактирование пользователя:")
-            for index, (title, attr_name, _) in enumerate(fields, start=1):
-                if attr_name == "password":
-                    shown_value = self.get_masked_password()
-                else:
-                    shown_value = getattr(self, attr_name)
-                self.io.output_message(f"{index}. {title} ({shown_value})")
+            self.io.output_message(f"1. Имя ({self.first_name})")
+            self.io.output_message(f"2. Фамилия ({self.last_name})")
+            self.io.output_message(f"3. Отчество ({self.middle_name})")
+            self.io.output_message(f"4. Телефон ({self.phone})")
+            self.io.output_message(f"5. Email ({self.email})")
+            self.io.output_message(f"6. Пароль ({self.get_masked_password()})")
             self.io.output_message("0. Завершить редактирование")
 
-            choice = self.io.input_int("Выберите номер поля", allow_empty=False)
+            choice = self.io.input_int("Выберите номер поля")
 
             if choice == 0:
                 self.io.output_message("Редактирование завершено.")
                 return
-            if choice is None or not (1 <= choice <= len(fields)):
+
+            if choice == 1:
+                self._edit_text_field("Имя", "first_name")
+            elif choice == 2:
+                self._edit_text_field("Фамилия", "last_name")
+            elif choice == 3:
+                self._edit_text_field("Отчество", "middle_name")
+            elif choice == 4:
+                self._edit_text_field("Телефон", "phone")
+            elif choice == 5:
+                self._edit_email()
+            elif choice == 6:
+                self._edit_password()
+            else:
                 self.io.output_error("Некорректный номер пункта меню.")
-                continue
 
-            title, attr_name, validator = fields[choice - 1]
+    def _edit_text_field(self, title, attr_name):
+        new_value = self.io.input_field(f"Новое значение для '{title}'")
+        if new_value == "":
+            self.io.output_message("Значение оставлено без изменений.")
+            return
 
-            if attr_name == "password":
-                change = self.io.input_field("Изменить пароль? (y/n)").lower()
-                if change != "y":
-                    self.io.output_message("Смена пароля отменена.")
-                    continue
-                new_password = self._input_password_with_confirmation()
-                self.password = new_password
-                self.io.output_message("Пароль успешно обновлен.")
-                continue
+        if new_value.strip() == "":
+            self.io.output_error("Поле не может быть пустым.")
+            return
 
-            while True:
-                new_value = self.io.input_field(f"Новое значение для '{title}'")
-                if new_value == "":
-                    self.io.output_message("Значение оставлено без изменений.")
-                    break
-                validation_error = validator(new_value)
-                if validation_error is not None:
-                    self.io.output_error(validation_error)
-                    continue
-                setattr(self, attr_name, new_value.strip())
-                self.io.output_message("Поле успешно обновлено.")
-                break
+        setattr(self, attr_name, new_value.strip())
+        self.io.output_message("Поле успешно обновлено.")
 
-    def add_request(self, request: Request) -> None:
+    def _edit_email(self):
+        new_value = self.io.input_field("Новое значение для 'Email'")
+        if new_value == "":
+            self.io.output_message("Значение оставлено без изменений.")
+            return
+
+        new_value = new_value.strip()
+        if new_value == "":
+            self.io.output_error("Поле не может быть пустым.")
+            return
+        if "@" not in new_value:
+            self.io.output_error("Email должен содержать символ '@'.")
+            return
+
+        self.email = new_value
+        self.io.output_message("Поле успешно обновлено.")
+
+    def _edit_password(self):
+        change = self.io.input_field("Изменить пароль? (y/n)").lower()
+        if change != "y":
+            self.io.output_message("Смена пароля отменена.")
+            return
+
+        self.password = self._input_password_with_confirmation()
+        self.io.output_message("Пароль успешно обновлен.")
+
+    def add_request(self, request):
         if self.io is not None:
             request.set_io(self.io)
         self.requests.append(request)
 
-    def list_requests(self) -> None:
+    def list_requests(self):
         if self.io is None:
             return
-        if not self.requests:
+
+        if len(self.requests) == 0:
             self.io.output_message("У пользователя нет заявок.")
             return
+
         self.io.output_message("Заявки пользователя:")
         for request in self.requests:
             request.write()
 
-    def find_request_by_id(self, request_id: int) -> Request | None:
+    def find_request_by_id(self, request_id):
         for request in self.requests:
             if request.id == request_id:
                 return request
         return None
 
-    def cancel_request(self, request_id: int) -> bool:
+    def cancel_request(self, request_id):
         request = self.find_request_by_id(request_id)
         if request is None:
             return False
@@ -152,18 +177,17 @@ class User(BaseEntity):
         request.cancel()
         return True
 
-    def _input_required_text(self, field_name: str) -> str:
+    def _input_required_text(self, field_name):
         return self.io.input_nonempty(field_name).strip()
 
-    def _input_email(self, field_name: str) -> str:
+    def _input_email(self, field_name):
         while True:
             value = self.io.input_nonempty(field_name).strip()
-            validation_error = self._validate_email(value)
-            if validation_error is None:
+            if "@" in value:
                 return value
-            self.io.output_error(validation_error)
+            self.io.output_error("Email должен содержать символ '@'.")
 
-    def _input_password_with_confirmation(self) -> str:
+    def _input_password_with_confirmation(self):
         while True:
             password = self.io.input_nonempty("Пароль").strip()
             confirm_password = self.io.input_nonempty("Подтверждение пароля").strip()
@@ -173,17 +197,3 @@ class User(BaseEntity):
                 continue
 
             return password
-
-    @staticmethod
-    def _validate_nonempty(value: str) -> str | None:
-        if value.strip() == "":
-            return "Поле не может быть пустым."
-        return None
-
-    @staticmethod
-    def _validate_email(value: str) -> str | None:
-        if value.strip() == "":
-            return "Поле не может быть пустым."
-        if "@" not in value:
-            return "Email должен содержать символ '@'."
-        return None

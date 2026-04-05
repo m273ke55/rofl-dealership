@@ -1,27 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}Главная{% endblock %}
+{% block body_class %}index-reference-page{% endblock %}
 {% block content %}
-<section class="hero-main" style="background-image:url('{{ url_for('static', filename='images/backgrounds/dealership_exterior.png') }}')">
-  <div class="hero-content">
-    <h1>ROFL Dealership</h1>
-    <p>Подбор автомобилей, сервис и консультации в стилистике первой лабораторной.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="{{ url_for('public.buy') }}">Купить автомобиль</a>
-      <a class="btn btn-secondary" href="{{ url_for('public.services') }}">Получить консультацию</a>
+<section class="reference-hero" style="background-image:url('{{ url_for('static', filename='images/backgrounds/dealership_exterior.png') }}')">
+  <div class="reference-hero-overlay"></div>
+  <div class="reference-hero-content">
+    <h1>МЫ ОТКРЫЛИСЬ!</h1>
+    <div class="reference-cta-stack">
+      <a class="btn reference-btn-register" href="{{ url_for('auth.register') }}">Зарегистрироваться</a>
+      <a class="btn reference-btn-login" href="{{ url_for('auth.login') }}">Войти</a>
     </div>
   </div>
-</section>
-
-<section class="banner-row">
-  <article class="banner-card" style="background-image:url('{{ url_for('static', filename='images/ui/banner_service.png') }}')">
-    <h2>Сервис</h2>
-    <p>Онлайн-запись на обслуживание.</p>
-    <a class="btn btn-primary" href="{{ url_for('requests.service_form') }}">Выбрать дату</a>
-  </article>
-  <article class="banner-card" style="background-image:url('{{ url_for('static', filename='images/ui/banner_service_tools.png') }}')">
-    <h2>Услуги</h2>
-    <p>Консультация, кредит, trade-in.</p>
-    <a class="btn btn-primary" href="{{ url_for('public.services') }}">Перейти</a>
-  </article>
 </section>
 {% endblock %}

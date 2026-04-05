@@ -6,7 +6,18 @@
   <title>{% block title %}ROFL Dealership{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+{% if request.endpoint == 'public.index' %}
+<header class="home-top-strip">
+  <div class="home-top-strip-inner">РОФЛ</div>
+  <div class="home-hidden-nav">
+    <a href="{{ url_for('public.buy') }}">Купить</a>
+    <a href="{{ url_for('public.sell') }}">Продать</a>
+    <a href="{{ url_for('public.services') }}">Услуги</a>
+    <a href="{{ url_for('public.service_landing') }}">Сервис</a>
+  </div>
+</header>
+{% else %}
 <header class="site-header">
   <div class="container header-row">
     <a href="{{ url_for('public.index') }}" class="brand-link">
@@ -32,6 +43,7 @@
     </nav>
   </div>
 </header>
+{% endif %}
 
 <main class="container page-main">
   <div id="js-message-box"></div>

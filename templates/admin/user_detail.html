@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Пользователь #{{ user.id }}{% endblock %}
+{% block content %}
+<section class="card admin-card">
+  <h1>Пользователь #{{ user.id }}</h1>
+  <div class="profile-grid">
+    <div><strong>Фамилия:</strong> {{ user.last_name }}</div>
+    <div><strong>Имя:</strong> {{ user.first_name }}</div>
+    <div><strong>Отчество:</strong> {{ user.middle_name }}</div>
+    <div><strong>Email:</strong> {{ user.email }}</div>
+    <div><strong>Телефон:</strong> {{ user.phone }}</div>
+    <div><strong>Роль:</strong> {{ user.role if user.role else 'user' }}</div>
+  </div>
+
+  <h2 class="top-gap">Заявки пользователя</h2>
+  {% if user.requests|length == 0 %}
+    <div class="empty-state">У пользователя нет заявок.</div>
+  {% else %}
+    <ul class="clean-list">
+      {% for req in user.requests %}
+        <li>№{{ req.id }} — {{ 'Консультация' if req.type == 'consultation' else 'Сервис' }} — {{ req.status }} {% if req.date %}({{ req.date }}){% endif %}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <div class="top-gap"><a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">К списку пользователей</a></div>
+</section>
+{% endblock %}

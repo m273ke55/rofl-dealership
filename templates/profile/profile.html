@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<section class="card cabinet-head">
+  <h1>Личный кабинет</h1>
+  <p>Здравствуйте, {{ user.first_name }}. Управляйте профилем и заявками.</p>
+  <div class="cabinet-actions">
+    <a class="btn btn-secondary" href="{{ url_for('profile.edit_profile_page') }}">Редактировать профиль</a>
+    <a class="btn btn-secondary" href="{{ url_for('profile.change_password_page') }}">Сменить пароль</a>
+    <a class="btn btn-primary" href="{{ url_for('requests.list_requests') }}">Активные заявки</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Данные профиля</h2>
+  <div class="profile-grid">
+    <div><strong>Фамилия:</strong> {{ user.last_name }}</div>
+    <div><strong>Имя:</strong> {{ user.first_name }}</div>
+    <div><strong>Отчество:</strong> {{ user.middle_name }}</div>
+    <div><strong>Телефон:</strong> {{ user.phone }}</div>
+    <div><strong>Email:</strong> {{ user.email }}</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Активные заявки</h2>
+  {% if active_requests|length == 0 %}
+    <div class="empty-state">
+      <h3>Заявок пока нет</h3>
+      <p>Создайте заявку на консультацию или сервис.</p>
+      <a class="btn btn-primary" href="{{ url_for('requests.list_requests') }}">Перейти к заявкам</a>
+    </div>
+  {% else %}
+    <ul class="clean-list">
+      {% for req in active_requests %}
+        <li>№{{ req.id }} — {{ 'Консультация' if req.type == 'consultation' else 'Сервис' }} {% if req.date %}({{ req.date }}){% endif %}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+{% endblock %}

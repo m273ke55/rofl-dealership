@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Админ-панель{% endblock %}
+{% block content %}
+<section class="card admin-card">
+  <h1>Админ-панель</h1>
+  <div class="admin-stats">
+    <div><strong>Пользователей:</strong> {{ users|length }}</div>
+    <div><strong>Всего заявок:</strong> {{ total_requests }}</div>
+  </div>
+  <div class="row-gap top-gap">
+    <form method="post" action="{{ url_for('admin.save_data') }}" class="inline-form"><button class="btn btn-primary">Сохранить в файл</button></form>
+    <form method="post" action="{{ url_for('admin.load_data') }}" class="inline-form"><button class="btn btn-secondary">Загрузить из файла</button></form>
+    <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Пользователи</a>
+    <a class="btn btn-secondary" href="{{ url_for('public.index') }}">На главную</a>
+  </div>
+</section>
+{% endblock %}

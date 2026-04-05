@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
@@ -35,6 +36,18 @@ CARS = [
         "year": 2025,
     },
 ]
+
+
+def _safe_next_url(next_value):
+    if not next_value:
+        return url_for("public.services")
+
+    parsed = urlparse(next_value)
+    if parsed.scheme or parsed.netloc:
+        return url_for("public.services")
+    if not next_value.startswith("/"):
+        return url_for("public.services")
+    return next_value
 
 
 @public_bp.get("/")
@@ -86,7 +99,8 @@ def buy():
 def consultation_submit():
     name = request.form.get("name", "").strip()
     phone = request.form.get("phone", "").strip()
-    next_url = request.form.get("next", url_for("public.services"))
+    car_model = request.form.get("car_model", "").strip()
+    next_url = _safe_next_url(request.form.get("next"))
 
     if not name:
         flash("Заполните имя для консультации.", "error")
@@ -96,16 +110,18 @@ def consultation_submit():
         flash("Неверный номер телефона для консультации.", "error")
         return redirect(next_url)
 
+    model_suffix = f" по модели {car_model}" if car_model else ""
+
     user_id = session.get("user_id")
     if user_id:
         user = get_state().user_book.find_user_by_id(user_id)
         if user is not None:
             create_consultation_request(get_state().user_book, user)
             get_state().save()
-            flash("Заявка на консультацию создана и добавлена в личный кабинет.", "success")
+            flash(f"Заявка на консультацию{model_suffix} создана и добавлена в личный кабинет.", "success")
             return redirect(next_url)
 
-    flash("Заявка на консультацию отправлена. Мы свяжемся с вами.", "success")
+    flash(f"Заявка на консультацию{model_suffix} отправлена. Мы свяжемся с вами.", "success")
     return redirect(next_url)
 
 

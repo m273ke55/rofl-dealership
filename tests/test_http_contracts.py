@@ -1,4 +1,3 @@
-import re
 import unittest
 from pathlib import Path
 
@@ -24,6 +23,13 @@ class HttpContractsTests(unittest.TestCase):
         self.assertIn("id=\"consultation-form\"", buy)
         self.assertIn("action=\"{{ url_for('public.consultation_submit') }}\"", buy)
         self.assertIn("prepareConsultation", buy)
+        self.assertIn("consultation-car-model", buy)
+
+    def test_public_consultation_route_has_safe_redirect_and_model_feedback(self):
+        public_routes = Path("routes/public.py").read_text(encoding="utf-8")
+        self.assertIn("def _safe_next_url", public_routes)
+        self.assertIn("car_model = request.form.get(\"car_model\"", public_routes)
+        self.assertIn("model_suffix", public_routes)
 
 
 if __name__ == "__main__":

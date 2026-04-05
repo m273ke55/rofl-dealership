@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Пользователи{% endblock %}
+{% block content %}
+<section class="card admin-card">
+  <h1>Пользователи</h1>
+  <table class="admin-table">
+    <thead>
+      <tr><th>ID</th><th>Email</th><th>Роль</th><th>Заявки</th><th>Действия</th></tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role if user.role else 'user' }}</td>
+        <td>{{ user.requests|length }}</td>
+        <td>
+          <a class="btn btn-secondary" href="{{ url_for('admin.user_detail', user_id=user.id) }}">Открыть</a>
+          {% if user.role != 'admin' %}
+            <button class="btn btn-danger" onclick="sendDelete('{{ url_for('admin.user_delete', user_id=user.id) }}')">Удалить (DELETE)</button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="top-gap"><a class="btn btn-secondary" href="{{ url_for('admin.dashboard') }}">Вернуться в админ-панель</a></div>
+</section>
+{% endblock %}

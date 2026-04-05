@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Сервис{% endblock %}
+{% block content %}
+<section class="page-hero card" style="background-image:url('{{ url_for('static', filename='images/ui/banner_service.png') }}')">
+  <div>
+    <h1>Сервисный центр ROFL</h1>
+    <p>Выберите дату обслуживания и отправьте заявку в один клик.</p>
+    <a class="btn btn-primary" href="{{ url_for('requests.service_form') }}">Выбрать дату сервиса</a>
+  </div>
+</section>
+{% endblock %}

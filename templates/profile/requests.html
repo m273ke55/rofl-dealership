@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Активные заявки{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Активные заявки</h1>
+  <div class="cabinet-actions">
+    <form method="post" action="{{ url_for('requests.consultation_create') }}" class="inline-form">
+      <button class="btn btn-primary">Создать заявку на консультацию</button>
+    </form>
+    <a class="btn btn-secondary" href="{{ url_for('requests.service_form') }}">Записаться на сервис</a>
+    <a class="btn btn-secondary" href="{{ url_for('profile.profile') }}">Личный кабинет</a>
+  </div>
+
+  {% if active_requests|length == 0 %}
+    <div class="empty-state">
+      <h3>У вас пока нет активных заявок</h3>
+      <p>Можно оставить заявку на консультацию или сервис.</p>
+    </div>
+  {% else %}
+    <ul class="clean-list">
+      {% for req in active_requests %}
+      <li class="request-row">
+        <span>№{{ req.id }} — {{ 'Консультация' if req.type == 'consultation' else 'Сервис' }} {% if req.date %}({{ req.date }}){% endif %}</span>
+        <button class="btn btn-danger" onclick="sendDelete('{{ url_for('requests.request_delete', request_id=req.id) }}')">Отменить (DELETE)</button>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+{% endblock %}

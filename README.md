@@ -34,3 +34,15 @@ python legacy/main_console.py
 
 Используется тот же pickle-формат (`users`, `max_user_id`, `max_request_id`), что и в консольной лабораторной.
 Файл по умолчанию: `data.dat`.
+
+
+## Проверка
+
+```bash
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+
+## Примечание по PR
+
+Если pull request был закрыт случайно, создайте новый PR из актуальной рабочей ветки с последним коммитом.

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Редактирование профиля{% endblock %}
+{% block content %}
+<section class="card form-wrap">
+  <h1>Редактирование ФИО и контактов</h1>
+  <form onsubmit="event.preventDefault(); sendPut(this, '{{ url_for('profile.edit_profile_put') }}', '{{ url_for('profile.profile') }}');">
+    <label>Имя <input name="first_name" value="{{ user.first_name }}" required></label>
+    <label>Фамилия <input name="last_name" value="{{ user.last_name }}" required></label>
+    <label>Отчество <input name="middle_name" value="{{ user.middle_name }}" required></label>
+    <label>Телефон <input name="phone" value="{{ user.phone }}" required></label>
+    <label>Email <input type="email" name="email" value="{{ user.email }}" required></label>
+    <div class="row-gap">
+      <button type="submit" class="btn btn-primary">Сохранить изменения (PUT)</button>
+      <a class="btn btn-secondary" href="{{ url_for('profile.profile') }}">Вернуться в кабинет</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

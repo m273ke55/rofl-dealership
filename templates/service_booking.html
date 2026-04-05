@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Запись на сервис{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Выбор даты сервиса</h1>
+  <p>Выберите свободную дату. Занятые даты недоступны.</p>
+
+  {% if free_dates|length == 0 %}
+    <div class="empty-state">
+      <h3>Свободных дат нет</h3>
+      <p>Попробуйте позже или свяжитесь с менеджером.</p>
+      <a class="btn btn-secondary" href="{{ url_for('public.services') }}">К услугам</a>
+    </div>
+  {% else %}
+    <form method="post" id="service-date-form">
+      <input type="hidden" id="selected-date-input" name="date" value="{{ selected_date }}">
+      <div class="date-grid">
+        {% for date in all_dates %}
+          {% set is_busy = date in busy_dates %}
+          {% set is_selected = date == selected_date %}
+          <button
+            type="button"
+            class="date-chip {% if is_busy %}date-chip-busy{% elif is_selected %}date-chip-selected{% else %}date-chip-free{% endif %}"
+            {% if is_busy %}disabled{% endif %}
+            data-date="{{ date }}"
+          >
+            {{ date }}
+            {% if is_busy %}<small>занято</small>{% elif is_selected %}<small>выбрано</small>{% else %}<small>доступно</small>{% endif %}
+          </button>
+        {% endfor %}
+      </div>
+
+      <div class="row-gap top-gap">
+        <button id="confirm-service-btn" class="btn btn-primary" type="submit" {% if not selected_date %}disabled{% endif %}>Подтвердить запись</button>
+        <a class="btn btn-secondary" href="{{ url_for('profile.profile') }}">Вернуться в кабинет</a>
+      </div>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const chips = document.querySelectorAll('.date-chip-free, .date-chip-selected');
+  const hidden = document.getElementById('selected-date-input');
+  const btn = document.getElementById('confirm-service-btn');
+  if (!chips.length || !hidden || !btn) return;
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => {
+        c.classList.remove('date-chip-selected');
+        c.classList.add('date-chip-free');
+        const mark = c.querySelector('small');
+        if (mark) mark.textContent = 'доступно';
+      });
+
+      chip.classList.remove('date-chip-free');
+      chip.classList.add('date-chip-selected');
+      const mark = chip.querySelector('small');
+      if (mark) mark.textContent = 'выбрано';
+
+      hidden.value = chip.dataset.date;
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+{% endblock %}

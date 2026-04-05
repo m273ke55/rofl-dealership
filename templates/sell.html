@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Продать автомобиль{% endblock %}
+{% block content %}
+<section class="page-hero card" style="background-image:url('{{ url_for('static', filename='images/cars/sell_page_car.png') }}')">
+  <div>
+    <h1>Продайте автомобиль быстро</h1>
+    <p>Оставьте заявку — перезвоним и согласуем оценку.</p>
+  </div>
+</section>
+
+<section class="form-wrap card">
+  <h2>Заявка на продажу</h2>
+  <form method="post">
+    <label>Марка и модель
+      <input name="car_model" required>
+    </label>
+    <label>Год выпуска
+      <input name="year" type="number" min="1990" max="2035" required>
+    </label>
+    <label>Телефон
+      <input name="phone" placeholder="+79991234567" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Отправить заявку</button>
+  </form>
+</section>
+{% endblock %}

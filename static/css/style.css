@@ -287,127 +287,131 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 
 /* ===== Главная страница под референс ===== */
 .index-reference-page {
-  background: #e9e9ee;
+  background: #e6e7ec;
 }
 
 .index-reference-page .container {
-  width: min(1700px, 100vw);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 .index-reference-page .page-main {
-  padding-top: 16px;
+  padding: 0;
+}
+
+.index-reference-page #js-message-box,
+.index-reference-page .flash {
+  margin: 0 24px 10px;
 }
 
 .home-top-strip {
   background: transparent;
-  padding: 0;
   margin: 0;
+  padding: 8px 0 0;
 }
 
 .home-top-strip-inner {
-  background: #f5f5f5;
-  border-radius: 0 0 34px 34px;
-  min-height: 138px;
+  width: 100%;
+  min-height: 136px;
+  background: #f3f3f3;
+  border-radius: 0 0 28px 28px;
   display: flex;
   align-items: center;
-  padding: 0 58px;
-  color: #ef2f37;
-  font-size: 68px;
+  padding: 0 82px;
+  color: #ef2d34;
+  font-size: clamp(58px, 4.8vw, 84px);
   line-height: 1;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: .5px;
 }
 
-.home-hidden-nav {
-  display: none;
-}
+.home-hidden-nav { display: none; }
 
 .reference-hero {
-  position: relative;
-  height: min(600px, 64vh);
-  min-height: 460px;
+  width: 100%;
+  margin: 0;
   border-radius: 0;
+  height: min(680px, 68vh);
+  min-height: 540px;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
   overflow: hidden;
 }
 
 .reference-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.28) 30%, rgba(0,0,0,.0) 55%);
+  background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.35) 30%, rgba(0,0,0,0) 58%);
 }
 
 .reference-hero-content {
   position: relative;
   z-index: 1;
-  padding: 74px 0 0 68px;
-  max-width: 620px;
+  max-width: 700px;
+  padding: 112px 0 0 84px;
 }
 
 .reference-hero-content h1 {
-  margin: 0 0 18px;
-  color: #ffffff;
-  font-size: clamp(56px, 5vw, 86px);
-  line-height: .97;
+  margin: 0 0 20px;
+  color: #fff;
+  font-size: clamp(64px, 5.2vw, 102px);
+  line-height: .95;
   font-weight: 900;
+  letter-spacing: .2px;
   text-transform: uppercase;
 }
 
 .reference-cta-stack {
-  width: 320px;
+  width: 430px;
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .reference-btn-register,
 .reference-btn-login {
+  width: 100%;
+  min-height: 72px;
   border-radius: 999px;
-  font-size: 40px;
+  font-size: clamp(30px, 2.5vw, 44px);
   font-weight: 700;
-  text-align: center;
-  min-height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 0 14px;
 }
 
-.reference-btn-register {
-  background: #79c927;
-  color: #fff;
-}
-
-.reference-btn-login {
-  background: #ffffff;
-  color: #111;
-}
+.reference-btn-register { background: #79c924; color: #fff; }
+.reference-btn-login { background: #fff; color: #141414; }
 
 @media (max-width: 980px) {
   .home-top-strip-inner {
-    min-height: 110px;
-    font-size: 52px;
-    padding: 0 28px;
+    min-height: 104px;
+    padding: 0 32px;
+    border-radius: 0 0 20px 20px;
   }
 
   .reference-hero {
-    min-height: 390px;
+    min-height: 420px;
+    height: 54vh;
   }
 
   .reference-hero-content {
-    padding: 42px 0 0 30px;
-  }
-
-  .reference-hero-content h1 {
-    font-size: clamp(42px, 8vw, 62px);
+    padding: 54px 0 0 34px;
+    max-width: 520px;
   }
 
   .reference-cta-stack {
-    width: 260px;
+    width: 290px;
   }
 
   .reference-btn-register,
   .reference-btn-login {
-    font-size: 32px;
-    min-height: 50px;
+    min-height: 56px;
+    font-size: clamp(24px, 4.6vw, 34px);
   }
 }

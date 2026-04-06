@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Услуги{% endblock %}
+{% block content %}
+<section class="page-hero" style="background-image:url('{{ url_for('static', filename='images/ui/banner_service_tools.png') }}')">
+  <div>
+    <h1>Услуги дилерского центра</h1>
+    <p>Консультации по подбору, кредиту и trade-in.</p>
+  </div>
+</section>
+
+<section class="panel form-panel">
+  <h2>Получить консультацию</h2>
+  <form method="post" action="{{ url_for('public.consultation_submit') }}">
+    <input type="hidden" name="next" value="{{ url_for('public.services') }}">
+    <label>Имя
+      <input name="name" required>
+    </label>
+    <label>Телефон
+      <input name="phone" placeholder="+79991234567" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Отправить запрос</button>
+  </form>
+</section>
+{% endblock %}

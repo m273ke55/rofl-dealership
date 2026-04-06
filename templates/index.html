@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block body_class %}index-reference-page{% endblock %}
+{% block content %}
+<section class="reference-hero" style="background-image:url('{{ url_for('static', filename='images/backgrounds/dealership_exterior.png') }}')">
+  <div class="reference-hero-overlay"></div>
+  <div class="reference-hero-content">
+    <h1>МЫ ОТКРЫЛИСЬ!</h1>
+    <div class="reference-cta-stack">
+      <a class="btn reference-btn-register" href="{{ url_for('auth.register') }}">Зарегистрироваться</a>
+      <a class="btn reference-btn-login" href="{{ url_for('auth.login') }}">Войти</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

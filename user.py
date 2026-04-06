@@ -13,6 +13,7 @@ class User(BaseEntity):
         password="",
         requests=None,
         io=None,
+        role="user",
     ):
         super().__init__(io)
         self.id = user_id
@@ -22,6 +23,7 @@ class User(BaseEntity):
         self.phone = phone
         self.email = email
         self.password = password
+        self.role = role
         if requests is None:
             self.requests = []
         else:
